@@ -5,24 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class TaskController extends Controller
 {
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'name' => 'required|string|max:255',
-            'duration' => 'required|integer|min:1',
-            'status' => 'required|integer|in:0,1,2',
-            'user_id' => 'required|exists:users,id',
+            'duration' => 'required|integer',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
-
-        $task = Task::create($request->all());
+        $task = Task::create([
+            'name' => $request->input('name'),
+            'duration' => $request->input('duration'),
+            'status' => 0,
+            'user_id' => Auth::id(),
+        ]);
 
         return response()->json($task, 201);
     }
